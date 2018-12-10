@@ -1,0 +1,2 @@
+# whereIsMyPoint
+Simple Go application
