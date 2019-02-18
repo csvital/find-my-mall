@@ -318,4 +318,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Node modules for frontend 
+frontend/node_modules/
+
 # End of https://www.gitignore.io/api/go,macos,python,windows,pycharm+all,sublimetext,visualstudiocode
