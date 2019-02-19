@@ -19,70 +19,65 @@ for box in boxes:
     score = box.find_element_by_class_name('avm_puan').find_element_by_tag_name('b').text
     img_src = box.find_element_by_tag_name('img').get_attribute('src')
     detail_page = box.find_element_by_tag_name('a').get_attribute('href')
+   
 
-    print('Crawling ===> ' + name)
+    print('Started crawling ' + name)
 
     data = {}
     data['ImageLink'] = str(img_src)
     data['DetailPage'] = str(detail_page)
-    data['AvmName'] = str(name)
-    data['AvmScore'] = str(score)
-
-    # print("Image link  : " + str(img_src))
-    # print("Detail page : " + str(detail_page))
-    # print("Avm name    : " + str(name))
-    # print("Avm score   : " + str(score))
-    # print()
+    data['Name'] = str(name)
+    data['Score'] = str(score)
 
     # Avm Detail Page
     driver2.get(detail_page)
     magazalar_link = driver2.find_element_by_xpath('//*[@id="EsitSolAlan"]/div[3]/a[1]').get_attribute('href')
     cafe_rest_link = driver2.find_element_by_xpath('//*[@id="EsitSolAlan"]/div[3]/a[2]').get_attribute('href')
-    
-    data['Shops'] = {}
+    address = driver2.find_element_by_class_name('avmd_adres').text
 
+    words = str(address).split()
+    district = ' '.join(words[:-1])
+    city = words[-1]
+
+    data['District'] = str(district)
+    data['City'] = str(city)
+    
+    data['Shops'] = []
+
+    print('Crawling shops of ', name)
     # Avm List of Shops
     driver2.get(magazalar_link)
     dukkans = driver2.find_elements_by_xpath('//*[@id="EsitSolAlan"]/div[5]/table/tbody/tr')
-    shopId = 0
     for dukkan in dukkans:
         logo = dukkan.find_element_by_tag_name('img').get_attribute('src')
         magaza = dukkan.find_element_by_xpath('td[2]').text
         kat = dukkan.find_element_by_xpath('td[3]').text
         telefon = dukkan.find_element_by_xpath('td[4]').text
-
-        data['Shops'][shopId] = {}
-        data['Shops'][shopId]['Logo'] = str(logo)
-        data['Shops'][shopId]['Magaza'] = str(magaza)
-        data['Shops'][shopId]['Kat'] = str(kat)
-        data['Shops'][shopId]['Telefon'] = str(telefon)
-        shopId = shopId + 1
+        data['Shops'].append({'Logo': str(logo), 'Magaza': str(magaza), 'Kat': str(kat), 'Telefon': str(telefon)})
 
     driver2.back()
 
-    data['Cafes'] = {}
+    print('Crawling cafes of ', name)
+    data['Cafes'] = []
     # Avm List of Cafes
     driver2.get(cafe_rest_link)
     dukkans = driver2.find_elements_by_xpath('//*[@id="EsitSolAlan"]/div[5]/table/tbody/tr')
-    cafeId = 0
     for dukkan in dukkans:
         logo = dukkan.find_element_by_tag_name('img').get_attribute('src')
         magaza = dukkan.find_element_by_xpath('td[2]').text
         kat = dukkan.find_element_by_xpath('td[3]').text
         telefon = dukkan.find_element_by_xpath('td[4]').text
+        data['Cafes'].append({'Logo': str(logo), 'Magaza': str(magaza), 'Kat': str(kat), 'Telefon': str(telefon)})
 
-        data['Cafes'][cafeId] = {}
-        data['Cafes'][cafeId]['Logo'] = str(logo)
-        data['Cafes'][cafeId]['Magaza'] = str(magaza)
-        data['Cafes'][cafeId]['Kat'] = str(kat)
-        data['Cafes'][cafeId]['Telefon'] = str(telefon)
-        cafeId = cafeId + 1
     avmLines.append(data)
 
-with open('data.txt', 'a') as outfile:
+filename = '../data/data.txt'
+print('Started to writing into ', filename)
+with open(filename, 'a') as outfile:
     for hostDict in avmLines:
         json.dump(hostDict, outfile)
         outfile.write('\n')
+print('Finished writing')
 
 time.sleep(5)
 driver.close()
