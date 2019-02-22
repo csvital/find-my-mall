@@ -1,4 +1,4 @@
-# find my mall
+# Find my mall app
 Simple Go application
 
 # Running on local

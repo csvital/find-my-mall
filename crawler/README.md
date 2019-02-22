@@ -1,8 +1,8 @@
-# find my mall - crawler
+# Find my mall crawler
+Simple python crawler
 
 # Running on local
 
-Macos
-
-brew install python3
-pip3 install selenium
+MacOS:
+* `brew install python3`
+* `pip3 install selenium`
