@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	. "github.com/csvital/find_my_mall/models"
+	. "github.com/works-forces/find-my-mall/models"
 	"gopkg.in/mgo.v2/bson"
 )
 

@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	. "github.com/csvital/find_my_mall/config"
-	. "github.com/csvital/find_my_mall/dao"
-	models "github.com/csvital/find_my_mall/models"
+	. "github.com/works-forces/find-my-mall/config"
+	. "github.com/works-forces/find-my-mall/dao"
+	models "github.com/works-forces/find-my-mall/models"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -21,7 +21,7 @@ func consume() {
 	dao.Server = config.Server
 	dao.Database = config.Database
 	dao.Connect()
-	file, err := os.Open("../data/data.txt")
+	file, err := os.Open("../data.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

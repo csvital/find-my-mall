@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"gopkg.in/mgo.v2/bson"
 
-	. "github.com/csvital/find_my_mall/config"
-	. "github.com/csvital/find_my_mall/dao"
-	. "github.com/csvital/find_my_mall/models"
 	"github.com/gorilla/mux"
+	. "github.com/works-forces/find-my-mall/config"
+	. "github.com/works-forces/find-my-mall/dao"
+	. "github.com/works-forces/find-my-mall/models"
 )
 
 var config = Config{}
@@ -18,7 +19,12 @@ var dao = ShoppingMallsDAO{}
 
 // AllShoppingMalls GET list of shopping_malls
 func AllShoppingMalls(w http.ResponseWriter, r *http.Request) {
-	shoppingMall, err := dao.FindAll()
+	city := r.FormValue("city")
+	score := r.FormValue("score")
+	magaza := r.FormValue("magaza")
+
+	magazaList := strings.Split(magaza, ",")
+	shoppingMall, err := dao.FindByQuery(city, score, magazaList)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -106,7 +112,7 @@ func init() {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/shoppingMalls", AllShoppingMalls).Methods("GET")
+	r.HandleFunc("/shoppingMalls", AllShoppingMalls).Queries("city", "{city}", "score", "{score}", "magaza", "{magaza}").Methods("GET")
 	r.HandleFunc("/shoppingMalls", CreateShoppingMall).Methods("POST")
 	r.HandleFunc("/shoppingMalls", UpdateShoppingMall).Methods("PUT")
 	r.HandleFunc("/shoppingMalls/{id}", DeleteShoppingMall).Methods("DELETE")

@@ -1,24 +1,24 @@
 package dao
- 
+
 import (
 	"log"
- 
-	. "github.com/csvital/find_my_mall/models"
+
+	. "github.com/works-forces/find-my-mall/models"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
- 
+
 type ShoppingMallsDAO struct {
 	Server   string
 	Database string
 }
- 
+
 var db *mgo.Database
- 
+
 const (
 	COLLECTION = "shopping_malls"
 )
- 
+
 func (m *ShoppingMallsDAO) Connect() {
 	session, err := mgo.Dial(m.Server)
 	if err != nil {
@@ -39,6 +39,18 @@ func (m *ShoppingMallsDAO) FindById(id string) (ShoppingMall, error) {
 	var shopping_mall ShoppingMall
 	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&shopping_mall)
 	return shopping_mall, err
+}
+
+// Find a shopping mall by query
+func (m *ShoppingMallsDAO) FindByQuery(city, score string, shopsToFind []string) ([]ShoppingMall, error) {
+	var shopping_malls []ShoppingMall
+	var internal []interface{}
+	for _, element := range shopsToFind {
+		internal = append(internal, bson.M{"shops": bson.M{"$elemMatch": bson.M{"magaza": element}}})
+	}
+	queryToFind := bson.M{"city": city, "score": bson.M{"$gte": score}, "$and": internal}
+	err := db.C(COLLECTION).Find(queryToFind).All(&shopping_malls)
+	return shopping_malls, err
 }
 
 // Insert a shopping mall into database
