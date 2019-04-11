@@ -13,7 +13,7 @@ Build repo:
 * `go build`
 
 Start app:
-* `./find_my_mall`
+* `./find-my-mall`
 
 Run the tests:
 * `go test -v`
