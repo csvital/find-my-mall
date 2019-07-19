@@ -17,14 +17,30 @@ import (
 var config = Config{}
 var dao = ShoppingMallsDAO{}
 
-// AllShoppingMalls GET list of shopping_malls
-func AllShoppingMalls(w http.ResponseWriter, r *http.Request) {
+// FindAShoppingMall GET list of shopping_malls
+func FindAShoppingMall(w http.ResponseWriter, r *http.Request) {
 	city := r.FormValue("city")
 	score := r.FormValue("score")
 	magaza := r.FormValue("magaza")
 
-	magazaList := strings.Split(magaza, ",")
+	var magazaList []string
+	if magaza != "" {
+		magazaList = strings.Split(magaza, ",")
+	} else {
+		magazaList = []string{}
+	}
+
 	shoppingMall, err := dao.FindByQuery(city, score, magazaList)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusOK, shoppingMall)
+}
+
+// FindAllShoppingMalls returns all of the shopping malls
+func FindAllShoppingMalls(w http.ResponseWriter, r *http.Request) {
+	shoppingMall, err := dao.FindAll()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -112,7 +128,8 @@ func init() {
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/shoppingMalls", AllShoppingMalls).Queries("city", "{city}", "score", "{score}", "magaza", "{magaza}").Methods("GET")
+	r.HandleFunc("/shoppingMalls", FindAShoppingMall).Queries("city", "{city}", "score", "{score}", "magaza", "{magaza}").Methods("GET")
+	r.HandleFunc("/shoppingMalls", FindAllShoppingMalls).Methods("GET")
 	r.HandleFunc("/shoppingMalls", CreateShoppingMall).Methods("POST")
 	r.HandleFunc("/shoppingMalls", UpdateShoppingMall).Methods("PUT")
 	r.HandleFunc("/shoppingMalls/{id}", DeleteShoppingMall).Methods("DELETE")

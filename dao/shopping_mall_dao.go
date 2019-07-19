@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"log"
 
 	. "github.com/works-forces/find-my-mall/models"
@@ -8,6 +9,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// ShoppingMallsDAO is the DAO structure
 type ShoppingMallsDAO struct {
 	Server   string
 	Database string
@@ -19,6 +21,7 @@ const (
 	COLLECTION = "shopping_malls"
 )
 
+// Connect connects to the MongoDB
 func (m *ShoppingMallsDAO) Connect() {
 	session, err := mgo.Dial(m.Server)
 	if err != nil {
@@ -27,28 +30,40 @@ func (m *ShoppingMallsDAO) Connect() {
 	db = session.DB(m.Database)
 }
 
-// Find list of shopping malls
+// FindAll Find list of shopping malls
 func (m *ShoppingMallsDAO) FindAll() ([]ShoppingMall, error) {
 	var shopping_malls []ShoppingMall
 	err := db.C(COLLECTION).Find(bson.M{}).All(&shopping_malls)
 	return shopping_malls, err
 }
 
-// Find a shopping mall by its id
+// FindById Find a shopping mall by its id
 func (m *ShoppingMallsDAO) FindById(id string) (ShoppingMall, error) {
 	var shopping_mall ShoppingMall
 	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&shopping_mall)
 	return shopping_mall, err
 }
 
-// Find a shopping mall by query
+// FindByQuery Find a shopping mall by query
 func (m *ShoppingMallsDAO) FindByQuery(city, score string, shopsToFind []string) ([]ShoppingMall, error) {
 	var shopping_malls []ShoppingMall
 	var internal []interface{}
-	for _, element := range shopsToFind {
-		internal = append(internal, bson.M{"shops": bson.M{"$elemMatch": bson.M{"magaza": element}}})
+	if len(shopsToFind) > 0 {
+		for _, element := range shopsToFind {
+			println(element)
+			internal = append(internal, bson.M{"shops": bson.M{"$elemMatch": bson.M{"magaza": element}}})
+		}
+	} else {
+		internal = append(internal, bson.M{})
 	}
-	queryToFind := bson.M{"city": city, "score": bson.M{"$gte": score}, "$and": internal}
+	if city != "" {
+		internal = append(internal, bson.M{"city": city})
+	}
+	if score == "" {
+		score = "0,0"
+	}
+	queryToFind := bson.M{"score": bson.M{"$gte": score}, "$and": internal}
+	fmt.Println(queryToFind)
 	err := db.C(COLLECTION).Find(queryToFind).All(&shopping_malls)
 	return shopping_malls, err
 }
