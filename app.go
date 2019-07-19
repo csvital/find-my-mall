@@ -22,6 +22,7 @@ func FindAShoppingMall(w http.ResponseWriter, r *http.Request) {
 	city := r.FormValue("city")
 	score := r.FormValue("score")
 	magaza := r.FormValue("magaza")
+	sortField := r.FormValue("sortField")
 
 	var magazaList []string
 	if magaza != "" {
@@ -30,7 +31,7 @@ func FindAShoppingMall(w http.ResponseWriter, r *http.Request) {
 		magazaList = []string{}
 	}
 
-	shoppingMall, err := dao.FindByQuery(city, score, magazaList)
+	shoppingMall, err := dao.FindByQuery(city, score, sortField, magazaList)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -51,7 +52,7 @@ func FindAllShoppingMalls(w http.ResponseWriter, r *http.Request) {
 // FindShoppingMall GET a shopping manll by its ID
 func FindShoppingMall(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	shoppingMall, err := dao.FindById(params["id"])
+	shoppingMall, err := dao.FindByID(params["id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid Shopping Mall ID")
 		return
@@ -94,7 +95,7 @@ func UpdateShoppingMall(w http.ResponseWriter, r *http.Request) {
 func DeleteShoppingMall(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	params := mux.Vars(r)
-	shoppingMall, err := dao.FindById(params["id"])
+	shoppingMall, err := dao.FindByID(params["id"])
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -127,18 +128,15 @@ func init() {
 }
 
 func main() {
+	var port = "3000"
 	r := mux.NewRouter()
-	r.HandleFunc("/shoppingMalls", FindAShoppingMall).Queries("city", "{city}", "score", "{score}", "magaza", "{magaza}").Methods("GET")
+	r.HandleFunc("/shoppingMalls", FindAShoppingMall).Queries("city", "{city}", "score", "{score}", "magaza", "{magaza}", "sortField", "{sortField}").Methods("GET")
 	r.HandleFunc("/shoppingMalls", FindAllShoppingMalls).Methods("GET")
 	r.HandleFunc("/shoppingMalls", CreateShoppingMall).Methods("POST")
 	r.HandleFunc("/shoppingMalls", UpdateShoppingMall).Methods("PUT")
 	r.HandleFunc("/shoppingMalls/{id}", DeleteShoppingMall).Methods("DELETE")
 	r.HandleFunc("/shoppingMalls/{id}", FindShoppingMall).Methods("GET")
 
-	err := http.ListenAndServe(":3000", r)
-	if err != nil {
-		log.Fatal(err)
-	} else {
-		log.Println("Successfully connected")
-	}
+	log.Println("Started server on -> " + port)
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
