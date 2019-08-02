@@ -321,4 +321,7 @@ $RECYCLE.BIN/
 # Node modules for frontend 
 frontend/node_modules/
 
+# MongoDB Data Files
+data
+
 # End of https://www.gitignore.io/api/go,macos,python,windows,pycharm+all,sublimetext,visualstudiocode

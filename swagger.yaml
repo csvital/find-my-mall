@@ -1,0 +1,108 @@
+swagger: '2.0'
+info:
+  title: find-my-mall API documentation
+  version: '1.0'
+  description: This is the API documetation for the find-my-mall application endpoint
+host: 'localhost:3000'
+schemes:
+  - http
+paths:
+  /shoppingMalls:
+    get:
+      summary: Get all Shopping Malls
+      description: Returns all of the shopping malls in the system
+      parameters:
+        - name: city
+          in: query
+          type: string
+          required: false
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Add a Shopping Mall
+      description: Adds a new shopping mall to the shopping mall system
+      responses:
+        '200':
+          description: OK
+    put:
+      summary: Edit a Shopping Mall
+      description: Edits a shopping mall to the shopping mall system
+      responses:
+        '200':
+          description: OK
+  '/shoppingMalls/{id}':
+    get:
+      summary: Get a Shopping Malls
+      description: >-
+        Returns a shopping mall with the specific id of the shopping malls in
+        the system
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          schema:
+            $ref: '#/definitions/ShoppingMalls'
+          description: OK
+    delete:
+      summary: Delete a Shopping Mall
+      description: Edits a shopping mall to the shopping mall system
+      parameters:
+        - name: id
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: OK
+definitions:
+  ShoppingMalls:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      district:
+        type: string
+      city:
+        type: string
+      imageLink:
+        type: string
+      detailPage:
+        type: string
+      score:
+        type: string
+      shops:
+        type: array
+        items:
+          $ref: '#/definitions/Shop'
+      cafes:
+        type: array
+        items:
+          $ref: '#/definitions/Cafe'
+  Shop:
+    type: object
+    properties:
+      logo:
+        type: string
+      magaza:
+        type: string
+      kat:
+        type: string
+      telefon:
+        type: string
+  Cafe:
+    type: object
+    properties:
+      logo:
+        type: string
+      magaza:
+        type: string
+      kat:
+        type: string
+      telefon:
+        type: string

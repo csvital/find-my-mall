@@ -25,14 +25,4 @@ Feeding mongodb with data:
 
 Using the backend api:
 
-**GET** -> `localhost/shoppingMalls?city={CITY_NAME}&score={SCORE}&magaza={SHOPS}`
-
-e.g. `http://localhost:3000/shoppingMalls?city=istanbul&score=1,0&magaza=Atasay,Gratis`
-
-**POST** -> `localhost/shoppingMalls`
-
-**PUT** -> `localhost/shoppingMalls`
-
-**GET** -> `localhost/shoppingMalls/{id}`
-
-**DELETE** -> `localhost/shoppingMalls/{id}`
+See [this](swagger.yaml) for further information

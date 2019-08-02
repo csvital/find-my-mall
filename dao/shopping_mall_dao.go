@@ -8,6 +8,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// ShoppingMallsDAO is the DAO structure
 type ShoppingMallsDAO struct {
 	Server   string
 	Database string
@@ -16,9 +17,11 @@ type ShoppingMallsDAO struct {
 var db *mgo.Database
 
 const (
+	// COLLECTION is the name of the collection in MongoDB
 	COLLECTION = "shopping_malls"
 )
 
+// Connect connects to the MongoDB
 func (m *ShoppingMallsDAO) Connect() {
 	session, err := mgo.Dial(m.Server)
 	if err != nil {
@@ -27,46 +30,56 @@ func (m *ShoppingMallsDAO) Connect() {
 	db = session.DB(m.Database)
 }
 
-// Find list of shopping malls
+// FindAll Find list of shopping malls
 func (m *ShoppingMallsDAO) FindAll() ([]ShoppingMall, error) {
-	var shopping_malls []ShoppingMall
-	err := db.C(COLLECTION).Find(bson.M{}).All(&shopping_malls)
-	return shopping_malls, err
+	var shoppingMalls []ShoppingMall
+	err := db.C(COLLECTION).Find(bson.M{}).All(&shoppingMalls)
+	return shoppingMalls, err
 }
 
-// Find a shopping mall by its id
-func (m *ShoppingMallsDAO) FindById(id string) (ShoppingMall, error) {
-	var shopping_mall ShoppingMall
-	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&shopping_mall)
-	return shopping_mall, err
+// FindByID Find a shopping mall by its id
+func (m *ShoppingMallsDAO) FindByID(id string) (ShoppingMall, error) {
+	var shoppingMalls ShoppingMall
+	err := db.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&shoppingMalls)
+	return shoppingMalls, err
 }
 
-// Find a shopping mall by query
-func (m *ShoppingMallsDAO) FindByQuery(city, score string, shopsToFind []string) ([]ShoppingMall, error) {
-	var shopping_malls []ShoppingMall
+// FindByQuery Find a shopping mall by query
+func (m *ShoppingMallsDAO) FindByQuery(city, score, sortField string, shopsToFind []string) ([]ShoppingMall, error) {
+	var shoppingMalls []ShoppingMall
 	var internal []interface{}
-	for _, element := range shopsToFind {
-		internal = append(internal, bson.M{"shops": bson.M{"$elemMatch": bson.M{"magaza": element}}})
+	if len(shopsToFind) > 0 {
+		for _, element := range shopsToFind {
+			internal = append(internal, bson.M{"shops": bson.M{"$elemMatch": bson.M{"magaza": element}}})
+		}
+	} else {
+		internal = append(internal, bson.M{})
 	}
-	queryToFind := bson.M{"city": city, "score": bson.M{"$gte": score}, "$and": internal}
-	err := db.C(COLLECTION).Find(queryToFind).All(&shopping_malls)
-	return shopping_malls, err
+	if city != "" {
+		internal = append(internal, bson.M{"city": city})
+	}
+	if score == "" {
+		score = "0,0"
+	}
+	queryToFind := bson.M{"score": bson.M{"$gte": score}, "$and": internal}
+	err := db.C(COLLECTION).Find(queryToFind).Sort(sortField).All(&shoppingMalls)
+	return shoppingMalls, err
 }
 
 // Insert a shopping mall into database
-func (m *ShoppingMallsDAO) Insert(shopping_mall ShoppingMall) error {
-	err := db.C(COLLECTION).Insert(&shopping_mall)
+func (m *ShoppingMallsDAO) Insert(shoppingMalls ShoppingMall) error {
+	err := db.C(COLLECTION).Insert(&shoppingMalls)
 	return err
 }
 
 // Delete an existing shopping mall
-func (m *ShoppingMallsDAO) Delete(shopping_mall ShoppingMall) error {
-	err := db.C(COLLECTION).Remove(&shopping_mall)
+func (m *ShoppingMallsDAO) Delete(shoppingMalls ShoppingMall) error {
+	err := db.C(COLLECTION).Remove(&shoppingMalls)
 	return err
 }
 
 // Update an existing shopping mall
-func (m *ShoppingMallsDAO) Update(shopping_mall ShoppingMall) error {
-	err := db.C(COLLECTION).UpdateId(shopping_mall.ID, &shopping_mall)
+func (m *ShoppingMallsDAO) Update(shoppingMalls ShoppingMall) error {
+	err := db.C(COLLECTION).UpdateId(shoppingMalls.ID, &shoppingMalls)
 	return err
 }
